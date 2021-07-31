@@ -53,7 +53,9 @@ list(D.keys())                                              #Словарные 
 D1.keys() & D2.keys()
 D = {x: x*2 for x in range (10) }                           #Включения словаря (Python З.Х, 2.7)
 
-
-
-
- 
+>>> S = {'pik1':1,'pik2':2,'pik3':3}                        # {'pik1': 1, 'pik2': 2, 'pik3': 3}
+>>> list(S.values())                                        # [1, 2, 3]
+>>> list(S.items())                                         # [('pik1', 1), ('pik2', 2), ('pik3', 3)]
+>>> S.get('pik2')                                           # 2
+>>> print(S.get('pik4'))                                    # None
+>>> S.get('pik4',4)                                         # 4
