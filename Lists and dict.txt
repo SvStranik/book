@@ -59,3 +59,12 @@ D = {x: x*2 for x in range (10) }                           #Включения 
 >>> S.get('pik2')                                           # 2
 >>> print(S.get('pik4'))                                    # None
 >>> S.get('pik4',4)                                         # 4
+>>> S = {'pik1': 1, 'pik2': 2, 'pik3': 3} >>> S1 = {'pik4':4,'pik3':33,'pik5':5}
+>>> S.update(S1)                                            # {'pik1': 1, 'pik2': 2, 'pik3': 33, 'pik4': 4, 'pik5': 5}
+
+>>> for i in S:
+	      print(i + '\t' + str(S[i]))                         # pik1	1\n pik2	2\n pik3	33\n pik4	4\n pik5	5
+
+>>> [pik for (pik,i) in S.items() if i == 33]               # ['pik3'] 
+
+288
