@@ -66,5 +66,24 @@ D = {x: x*2 for x in range (10) }                           #Включения 
 	      print(i + '\t' + str(S[i]))                         # pik1	1\n pik2	2\n pik3	33\n pik4	4\n pik5	5
 
 >>> [pik for (pik,i) in S.items() if i == 33]               # ['pik3'] 
+>>> S = {}
+>>> S[(1,2,3)] = 100
+>>> S[(2,3,4)] = 200                                        # {(1, 2, 3): 100, (2, 3, 4): 200}
+>>> S.get((1,2,3),0)                                        # 100
+>>> S.get((100,2,3),0)                                      # 0
 
-288
+>>> D = dict(name='Bob', age=40)                            # {'name': 'Bob', 'age': 40}
+>>> D = dict([('name','Bob'),('age', 140)])                 # {'name': 'Bob', 'age': 140}
+>>> D = {'name':'Bob','age': 240}                           # {'name': 'Bob', 'age': 240}
+>>> D = dict.fromkeys(['a','b'],100)                        # {'a': 100, 'b': 100}
+
+>>> D = dict(zip(['a','b','c'],[1,2,3]))                    # {'a': 1, 'b': 2, 'c': 3}
+>>> D = {k: v for (k, v) in zip (['a','b','c'], [1, 2, 3])} # {'a': 1, 'b': 2, 'c': 3}
+>>> D = {с.lower() : с + '!' for с in ['SPAM','EGGS','НАМ']} # {'spam': 'SPAM!', 'eggs': 'EGGS!', 'нам': 'НАМ!'}
+>>> D = {k:0 for k in ['a','b','c']}                        # {'a': 0, 'b': 0, 'c': 0}
+
+>>> K = list(D.keys())                                      # ['a', 'b', 'c']
+>>> K = list(D.values())                                    # [0, 0, 0]
+>>> K = list(D.items())                                     # [('a', 0), ('b', 0), ('c', 0)]
+
+298
