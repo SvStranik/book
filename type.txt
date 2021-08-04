@@ -42,4 +42,15 @@ set.
 frozenset                   Множества               Нет
 bytearray                   Последовательности      Да
 
-s
+Примеры значений истинности объектов
+
+Объект                      Значение
+"spam"                      True
+{}                          False
+""                          False
+1                           True
+[1, 2]                      True
+0.0                         False
+[]                          False
+None                        False
+{'а': 1}                    True

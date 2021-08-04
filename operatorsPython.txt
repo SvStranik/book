@@ -1,0 +1,40 @@
+Операторы Python
+
+Оператор                    Роль                    Пример
+Присваивания                Создание ссылок         a, b = 'good','bad'
+Вызовы и другие выражения   Выполнение функций      log.write('spam, ham')
+Вызовы print                Вывод объектов          print ('The Killer', joke)
+if/elif/else                Выбор действий          if "python" in text: print(text)
+for/else                    Итерация                for x in mylist: print(x)
+while/else                  Yниверсальные циклы     while X > Y: print('hello')
+pass                        Пустой заполнитель      while True: pass
+break                       Выход из цикла          while True: if exittest(): break
+continue                    Продолжение цикла       while True: if skiptest(): continue
+def                         Функции и методы        def f(a, b, c=l, *d): print(a+b+c+d[0])
+return                      Результаты функций      def f(a, b, c=l, *d): return a+b+c+d[0]
+yield                       Генераторные функции    def gen(n): for i in n: yield i*2
+global                      Пространства имен       х = 'old' 
+                                                    def function(): global x, у; x = 'new'
+nonlocal                    Пространства имен       def outer(): 
+                            (Python З.Х)                x = 'old'
+                                                        def function():
+                                                            nonlocal x; x = 'new'
+import                      Доступ к модулям        import sys
+from                        Доступ к атрибутам      from sys import stdin
+class                       Построение объектов     class Subclass(Superclass):
+                                                        staticData = [ ]
+                                                        def method (self) : pass
+try/except/                 Перехват исключений     try:
+finally                                                 action()
+                                                    except:
+                                                        print(’action error’)
+raise                       Генерация исключений    raise EndSearch(location)
+assert                      Отладочные проверки     assert X > Y, 'X too small'
+with/as                     Диспетчеры контекста    with open ('data ’) asmyfile: 
+                            (Python З.Х, 2.6+)          process(myfile)
+del                         Удаление ссылок         del data[k]
+                                                    del data[i:j] 
+                                                    del obj.attr 
+                                                    del variable
+
+
