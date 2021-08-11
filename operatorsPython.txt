@@ -58,3 +58,46 @@ print([ object, ...][, sep=''] [, end='\n'] [,file=sys.stdout][, flush=False])
 >>> [a-1,a+1][b == 4]                               # 0 Лож
 >>> L = [1,2,"","23",[],'re','']
 >>> [per for per in L if per]                       # [1, 2, '23', 're']
+
+Параллельные обходы: zip и map
+
+>>> L2 = [5,6,7,8]
+>>> L1 = [1,2,3,4]
+>>> zip(L1,L2)                                      # zip object at 0x0000022E2D6BFC40>
+>>> list(zip(L1,L2))                                # [(1, 5), (2, 6), (3, 7), (4, 8)]
+>>> [[x,y] for (x,y) in zip(L1,L2)]                 # [[1, 5], [2, 6], [3, 7], [4, 8]]
+Словари
+>>> keys = ['spam', 'eggs', 'toast']
+>>> vals = [1, 3, 5]
+>>> D2 = {} 
+>>> for (k,v) in zip(keys,vals): D2[k] = v          # {'spam': 1, 'eggs': 3, 'toast': 5}
+>>> D3 = dict(zip(keys, vals))                      # {'spam': 1, 'eggs': 3, 'toast': 5}
+>>> {k:v for (k,v) in zip(keys, vals)}              # {'spam': 1, 'eggs': 3, 'toast': 5}
+
+Генерация смещений и элементов: enumerate
+
+>>> S = 'spam'
+>>> for (i,j) in enumerate(S):                      # 0 - s
+	print(i,'-',j)                                  # 1 - p
+                                                    # 2 - a
+                                                    # 3 - m
+>>> [(i,j) for (i,j) in enumerate(S)]               # [(0, 's'), (1, 'p'), (2, 'a'), (3, 'm')]
+>>> [с * i for (i,с) in enumerate(S)]               # ['', 'p', 'aa', 'mmm']
+
+Вывод характеристик ПК
+>>> import os
+>>> for line in os.popen('systeminfo'): print(line.rstrip())
+
+-----------Итерации и включения-------------------------------------------------------------
+>>> for x in (1,2,3,4): print(x ** 3,end=' ')       # 1 8 27 64 
+>>> L = [1, 2, 3]
+>>> I = iter(L)
+>>> I.__next__()                                    # 1
+>>> I.__next__()                                    # 2
+>>> next(I)                                         # 3
+
+>>> D = dict(a=1, b=2, с=3)                         # {'a': 1, 'b': 2, 'с': 3}
+>>> list(D.keys())                                  # ['a', 'b', 'с']
+>>> list(D.values())                                # [1, 2, 3]
+>>> list(D.items())                                 # [('a', 1), ('b', 2), ('с', 3)]
+>>> for (k, v) in D.items(): print(k,v, end=' ')    # a 1 b 2 с 3 
