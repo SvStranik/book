@@ -1,1 +1,7 @@
-416
+>>> keys = ['spam', 'eggs', 'toast']
+>>> vals = [1, 3, 5]
+>> {k:v for (k,v) in zip(keys, vals)}              # {'spam': 1, 'eggs': 3, 'toast': 5}
+>>> S = 'spam'
+>>> [(i,j) for (i,j) in enumerate(S)]              # [(0, 's'), (1, 'p'), (2, 'a'), (3, 'm')]
+>>> [с * i for (i,с) in enumerate(S)]              # ['', 'p', 'aa', 'mmm']
+>> [x+y for x in 'abc' for y in '123']             # ['a1', 'a2', 'a3', 'b1', 'b2', 'b3', 'c1', 'c2', 'c3']
