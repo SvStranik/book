@@ -1,0 +1,257 @@
+SELECT список-полей FROM имя-таблицы
+SELECT список-полей FROM имя-таблицы WHERE условие
+SELECT * FROM ... WHERE ...
+
+Пример
+SELECT * FROM Orders 
+WHERE (Freight > 100) AND (ShipRegion = 'RJ')
+
+Отказ от дублирования - DISTINCT
+        SELECT DISTINCT список-полей FROM имя-таблицы
+
+Специальные условия отбора
+значение IN (список-значений)
+        SELECT * FROM Region WHERE RegionDescription IN ('Eastern', 'Western')
+
+начальная и конечная граница диапазона - BETWEEN
+значение BETWEEN нижняя-граница AND верхняя-граница
+        SELECT * FROM Products WHERE UnitPrice BETWEEN 18.0 AND 21.35
+
+анализа строк - LIKE
+значение-строки LIKE шаблон
+        Значение строки проверяется на соответствие шаблону. В шаблоне используют обычные символы, 
+        а также два специальных: знак подчеркивания _ и знак процента %.
+        Знак подчеркивания означает, что в данном месте может находиться любой отдельный символ. 
+        Знак процента заменяет строку произвольной, в том числе нулевой, длины. 
+        SELECT * FROM Territories WHERE TerritoryDescription LIKE 'New %'
+        Пример:
+        Поиск ВТОРОГО слова с "С" # SELECT * FROM Customers WHERE ContactName LIKE '% C%'
+
+#Сортировка и агрегирование
+
+    # Сортировка набора - ORDER BY (по возрастанию) доб. DESC (по убыванию)
+        SELECT *  FROM Orders ORDER BY OrderDate DESC
+        SELECT * FROM Customers ORDER BY ContactName
+        В случае если нескольео полей:
+        SELECT * FROM Customers ORDER BY Country, ContactName
+
+    # Проверка неопределенных полей - IS NULL
+        SELECT * FROM Customers WHERE Region IS NULL ORDER BY Country, ContactName
+        В результирующий набор попадут записи, у которых значение поля Region не определено.
+
+    Агрегирование
+    Функция SUM - SELECT SUM(UnitsInStock) FROM Products
+    функции AVG (вычисление среднего значения)
+    функции MIN и MAX (поиск минимального и максимального значений)
+    Функция COUNT (Подсчёт количества значений) - SELECT COUNT(RegionId) FROM Region
+        Если требуется узнать общее число записей в таблице, вместо имени поля можно поставить символ *
+        Подчитать число уникальных значений в определенном столбце (без учета повторяющихся значений)
+        SELECT COUNT(DISTINCT ContactType) FROM Contacts
+
+#Группировка и фильтрация
+
+        #Группировка
+        GROUP BY - позволяет сочетать в одном выражении функции и поля
+        (Пример из повторяющегося списков сотрудников отобрать по каждому сотруднику мах груз)
+                SELECT EmployeeID, MAX(Freight) 
+                FROM Orders 
+                GROUP BY EmployeeID
+        (и добавин название столбца)
+                SELECT EmployeeID, MAX(Freight) as MAX_FREIGHT 
+                FROM Orders 
+                GROUP BY EmployeeID
+
+        #Фильтрация
+        Для того чтобы отобрать семейство сгруппированных записей, используют предложение HAVING
+        (Пример - максимальное значение платы за груз превышает 1000)
+                SELECT EmployeeID, MAX(Freight) as MAX_FREIGHT 
+                FROM Orders 
+                GROUP BY EmployeeID
+                HAVING MAX(Freight) > 1000
+                
+# SQL: дополнительные возможности
+
+        # Вычисляемые поля
+        Tекстовые константы, которые берутся в одинарные кавычки
+        SELECT 'Ship Name:', ShipName, 'Freight Detail', Freight / 100 FROM Orders
+        # Вложенный запрос (подзапрос) -- это запрос, включенный в другой запрос. 
+        # Результат его работы передается для дальнейшей обработки родительскому запросу.
+        SELECT * FROM Orders
+        WHERE EmployeeID = 
+                (SELECT EmployeeID FROM Employees
+                 WHERE LastName = 'King') 
+
+# Соединения таблиц
+
+        #  Обычное соединение таблиц
+                SELECT Employees.FirstName, Employees.LastName, Orders.Freight 
+                FROM Employees, Orders
+        # Эквисоединение -- это соединение между таблицами,
+        # в котором проверяется равенство значения поля одной таблицы значению поля другой таблицы. 
+                SELECT Employees.FirstName, Employees.LastName, Orders.Freight
+                FROM Employees, Orders
+                WHERE Orders.EmployeeID = Employees.EmployeeID AND Orders.Freight > 50;
+
+# Работа с копиями таблицы
+        SELECT t1.ContactName, t2.ContactName, t2.ContactTitle  
+        FROM Customers t1, Customers t2 
+        WHERE (t1.ContactTitle = t2.ContactTitle)
+        ORDER BY t2.ContactTitle;
+
+# Проверка пустого запроса
+        SELECT * FROM [Order Details] t1 
+        WHERE EXISTS 
+        (SELECT * FROM Products t2 
+        WHERE t1.ProductID = t2.ProductID AND t2.UnitPrice >= 200)
+
+#Проверка набора на наличие значений вложенным запросом
+        Предложение ANY проверяет, имеется ли в наборе, выданном подзапросом,
+        хотя бы одно из заданных значений. Оно применяется только во вложенных запросах.
+                SELECT t1.FirstName, t1.LastName, t1.Country, t2.OrderDate 
+                FROM Employees t1, Orders t2 
+                WHERE t1.Country = ANY 
+                (SELECT ShipCountry FROM Orders)
+        Предложение ALL противоположно по смыслу предложению ANY.
+        Оно проверяет, равно ли заданное значение не какому-то одному, а каждому из значений тестируемого набора записей.
+                SELECT t1.FirstName, t1.LastName, t1.Country, t2.OrderDate 
+                FROM Employees t1, Orders t2 
+                WHERE t1.Country <> ALL 
+                (SELECT ShipCountry FROM Orders)
+
+# JOIN
+        # INNER JOIN
+        Эта операции -- по сути, пересечение двух множеств.
+        Мы указываем условие связи, например, по FK, и получаем только те записи из обеих таблиц, которые отвечают этому требованию.
+                SELECT Products.ProductName, Categories.CategoryName
+                FROM Products
+                INNER JOIN Categories
+                ON Products.CategoryID = Categories.CategoryID
+        # FULL JOIN
+        Эта операция противоположна предыдущей 
+        -- она возвращает все записи, входящие в обе таблицы. По сути, это операция объединения множеств. 
+                SELECT Orders.Freight, Customers.CompanyName
+                FROM Orders
+                FULL JOIN Customers
+                ON Orders.CustomerID = Customers.CustomerID
+                ORDER BY Freight
+        # CROSS JOIN
+        Это декартово произведение двух таблиц (все ко всем), аналогичное обычному соединению
+                SELECT Employees.FirstName, Employees.LastName, Orders.Freight
+                FROM Employees CROSS JOIN Orders
+        
+        # LEFT JOIN / RIGHT JOIN
+        Это частный случай формы FULL JOIN, когда мы получаем данные из первой ("левой") таблицы вместе с данными из "правой" таблицы, 
+        которые пересекаются с первой. Остальные данные правой таблицы исключаются.
+                ...  FROM Customers LEFT JOIN Orders ON ...
+                ...  FROM Customers RIGHT JOIN Orders ON ...
+        
+        # SELF JOIN
+        Это вариант комбинирования таблицы с самой собой.
+                SELECT A.CompanyName AS CustomerName1, B.CompanyName AS CustomerName2, A.City 
+                FROM Customers A, Customers B 
+                WHERE A.CustomerID <> B.CustomerID AND A.City = B.City 
+                ORDER BY A.City
+
+        # UNION
+        С помощью оператора UNION мы можем скомбинировать результаты двух SQL-запросов по полям, к
+        оторые в общем случае не являются ключевыми, но должны иметь одинаковые типы. 
+        По умолчанию UNION исключает дублирующиеся значения, а если они требуются, надо использовать UNION ALL.
+
+        Например, мы хотим отобрать все города из двух таблиц -- пользователей Customers и поставщиков Suppliers: 
+                SELECT City FROM Customers 
+                UNION ALL 
+                SELECT City FROM Suppliers 
+                ORDER BY City
+
+        Чтобы разделить записи по таблицам, можно в каждый SELECT включить собственное идентификационное поле: 
+                SELECT 'Customer' As Type, City, Country FROM Customers 
+                WHERE Country='USA' 
+                UNION 
+                SELECT 'Supplier' As Type, City, Country FROM Suppliers 
+                WHERE Country='USA' 
+                ORDER BY City
+# Добавление новой записи
+        # Команда INSERT добавляет в таблицу новую запись
+                INSERT INTO имя-таблицы
+                VALUES ( значение-первого-поля, значение-второго-поля, ... )
+                <<<INSERT INTO Categories (CategoryName, Description) 
+                   VALUES ('Gaz', 'Gaz from Russia') >>>
+# Модификация значений полей
+        # Команда UPDATE модифицирует отдельные поля по всей таблице. Она записывается следующим образом:
+                UPDATE имя-таблицы
+                SET поле = значение
+                <<<UPDATE Employees
+                SET TitleOfCourtesy = 'Mr.'
+                WHERE TitleOfCourtesy = 'Mister'>>>
+# Удаление записей
+        #  Команда DELETE удаляет записи из таблицы. Она имеет две формы. При использовании первой формы:
+                DELETE FROM имя-таблицы;
+                из заданной таблицы исключатся все записи.
+        При использовании второй формы:
+                DELETE FROM имя-таблицы
+                WHERE условие
+        из заданной таблицы исключаются записи, удовлетворяющие условию. 
+# Представления (View)
+        # Представление -- это именованный набор данных, который физически не существует в таблице,
+        # а формируется динамически при выполнении запроса SQL.
+                CREATE VIEW USA_Customers AS
+                SELECT * FROM Customers
+                WHERE Country = 'USA'
+
+# Создание новой базы данных
+        CREATE DATABASE имя-базы
+
+#  Удаление базы данных
+        DROP DATABASE имя-базы
+
+# Текущая база данных
+        USE имя-базы-данных
+
+# Создание таблицы
+        #CREATE TABLE имя-таблицы (список-описаний-полей)
+        Список описаний полей представляет собой набор пар
+        имя-поля тип-поля
+                CREATE TABLE Region ( 
+                     RegionID int NOT NULL, 
+                     RegionDescription nchar(50) NOT NULL )
+        
+        # Уникальное поле - UNIQUE / PRIMARY KEY
+        - это поле, в котором все значения в таблице должны быть неповторяющимися.
+        PRIMARY KEY - Первичный ключ можно определить в таблице явно с помощью конструкции 
+                USE MyTest;
+                CREATE TABLE Region (
+	                RegionID int PRIMARY KEY,
+	                RegionDescription nchar(50) NOT NULL
+	                );
+        IDENTITY - auto-increment поля, значения которых формируются автоматически при добавлении новой записи
+                с двумя значениями, первое из которых -- начальное, а второе -- шаг приращения
+                CREATE TABLE Region (
+	                RegionID int IDENTITY(1,3) PRIMARY KEY,
+	                RegionDescription nchar(50) NOT NULL
+	                );
+        # Создание индексов CREATE INDEX
+        CREATE INDEX имя-индекса ON имя-таблицы (имя-поля)
+        CREATE INDEX idxContactTitleAndName ON Customers (ContactTitle, ContactName)
+                Имя индекса нужно для того, чтобы впоследствии его можно было уничтожить. 
+                Существующий индекс удаляют командой  # DROP
+                        DROP INDEX имя-индекса ON имя-таблицы
+        Некоторые индексы в этом примере (для PK-поля) помечены как кластерные. 
+        Это означает, что таблица хранится в упорядоченном виде, по значению ключа этого индекса, 
+        что дополнительно повышает эффективность её обработки. 
+        Если ключевое поле представляет собой автоматически увеличивающийся счётчик, то лучше делать его кластерным.
+        Кластерный индекс создаётся так:
+                CREATE CLUSTERED INDEX имя-индекса ON имя-таблицы (имя-поля)
+                Кластерный индекс для таблицы может быть только один. 
+
+        # Модификация структуры таблицы
+        добавить новые поля
+                ALTER TABLE имя-таблицы ADD имя-поля тип-поля
+                # Вместо ADD 
+                        # MODIFY 
+                        для смены типа поля (данная операция не всегда допустима
+                        и зависит от возможности автоматического преобразования данных)
+                        # DROP 
+                        для удаления поля
+#  Удаление таблицы
+        # DROP TABLE имя-таблицы
+        удаляет заданную таблицу из базы данных при условии, что в ней нет ни одной записи
