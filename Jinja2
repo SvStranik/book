@@ -1,0 +1,208 @@
+from jinja2 import Template
+
+name = 'Федор'
+
+tm = Template("Приет {{ name }}")               # {% %} - Спецификатор шаблона
+msg = tm.render(name=name)                      # {{ }} - выражение для вставки конструкций Python в шаблон
+                                                # {# #} - Блок коментариев
+msg2 = f"Приет { name }"                        #  # ## - Строковый коментарий
+
+print(msg, msg2, sep="\n")
+
+# Работа с классами
+class Person:
+    def __init__(self, name, age):
+        self.name = name
+        self.age = age
+
+per = Person("Petro", 21)
+tm = Template('Меня зовут {{p.name}} и мне {{p.age}} исполнилось!')
+msg = tm.render(p = per)
+print(msg)
+
+print("\nСпособ представления без отработки {{...}}")
+data = '''{% raw %}! Модуль Jinja вместо определения {{name}}
+! подставляет соответствующее значение {% endraw %}'''
+tm = Template(data)
+msg = tm.render(name = "Федор")
+print(msg)
+
+print('\nЭкранирование специальнэх символов')
+link = '''В HTML - документе ссылки определяются так:
+<a href="#">Ссылка</a>'''
+tm = Template("{{ link | e }}")    # e - экранирование
+msg = tm.render(link=link)
+
+#или
+
+from jinja2 import escape
+msg2 = escape(link)
+
+print(msg,msg2,sep='\n')
+
+print('\nВыражение For')
+# {% for <выражение>- %}  -% убирает пробелы между строк
+# <повторяемый фрагмент>
+# {% endfor %}
+cities = [{'id': 1, 'citi': 111},
+          {'id': 2, 'citi': 222},
+          {'id': 3, 'citi': 333},]
+link = '''<select name=cities>
+        {% for i in cities -%}          
+        <option value="{{i['id']}}>{{i['citi']}}</option>
+        {% endfor -%}
+        </select>'''
+tm = Template(link)
+msg = tm.render(cities = cities)
+print(msg)
+
+print('\nВыражение if')
+# {% if <условие>- %}
+# <фрагмент при истинности условия>
+# {% endif %}
+cities1 = [{'id': 1, 'citi': 111},
+          {'id': 2, 'citi': 222},
+          {'id': 3, 'citi': 333},]
+link = '''<select name=cities1>
+        {% for i in cities1 -%}  
+        {% if i.id >= 2 -%}
+        <option value="{{i['id']}}>{{i['citi']}}</option>
+        {% endif -%}
+        {% endfor -%}
+        </select>'''
+tm = Template(link)
+msg1 = tm.render(cities1 = cities1)
+print(msg1)
+
+print('\nФильтры и макросы')
+cars = [{'model':'Ауди','price':123},
+        {'model':'Форд','price':212},
+        {'model':'Пежо','price':321}
+]
+tpl = "Сумарная цена автомобилей {{ cs | sum(attribute='price', start= 10000)}}" # start - прибовляет указанную цифру
+tm = Template(tpl)
+msg = tm.render(cs = cars)
+print(msg)
+# {{ cs | max(attribute='price')}}
+# {{ (cs | max(attribute='price')).model}} выведет только модель
+# {{ cs | random }}
+# {{ cs | replace('o','O')}} замена символов
+#https://jinja.palletsprojects.com/en/2.11.x/templates
+
+print('\nБлок фильтров')
+# {{% filter<название фильтра> %}}
+# <фрагмент для применения фильтра>
+# {% endfilter %}
+
+persons = [
+    {'name':'Alexsei', 'old':23, 'weight': 78.5},
+    {'name':'Dima', 'old':15, 'weight': 50.4},
+    {'name':'Misha', 'old':37, 'weight': 82.6},
+    {'name':'Timur', 'old':11, 'weight': 45.8},
+]
+tpl = '''
+{%- for u in users -%}  
+{% filter upper %}{{u.name }}{% endfilter %}
+{% endfor -%}
+'''
+tm = Template(tpl)
+msg = tm.render(users = persons)
+print(msg)
+
+# upper - фильтр преобразует малые буквы в заглавные
+# lower - малые буквы
+
+print('\nМакроопределения')
+html = '''
+{% macro input(name, value='',type='text', size=20) -%}
+<input type='{{ type }}' name='{{ name }}' value='{{ value | e }}' size='{{ size }}'>
+{%- endmacro %}
+
+<p>{{ input('username') }}
+<p>{{ input('email') }}
+<p>{{ input('password') }}
+'''
+
+tm = Template(html)
+msg = tm.render()
+print(msg)
+
+print('\nВложенные макросы - call')
+# {% call(параметры)<вызов макроса> %}}
+# <вложенный шаблон>
+# {% endcall %}
+
+persons = [
+    {'name':'Alexsei', 'old':23, 'weight': 78.5},
+    {'name':'Dima', 'old':15, 'weight': 50.4},
+    {'name':'Misha', 'old':37, 'weight': 82.6},
+    {'name':'Timur', 'old':11, 'weight': 45.8},
+]
+html = '''
+{% macro list_users(list_of_user) -%}
+<ul>
+{% for u in list_of_user -%}
+    <li>{{u.name}} {{caller(u)}}
+{%- endfor %}
+</ul>  
+{%- endmacro %}
+
+{% call(user) list_users(users) %}
+    <ul>
+    <li> age: {{user.old}}
+    <li> weight: {{user.weight}}
+    </ul>
+{% endcall %}
+'''
+tm = Template(html)
+msg = tm.render(users = persons)
+print(msg)
+
+print('\nЗагрузчик шаблонов')
+
+from jinja2 import Environment, FileSystemLoader, FunctionLoader
+persons = [
+    {'name':'Alexsei', 'old':23, 'weight': 78.5},
+    {'name':'Dima', 'old':15, 'weight': 50.4},
+    {'name':'Misha', 'old':37, 'weight': 82.6},
+    {'name':'Timur', 'old':11, 'weight': 45.8},
+]
+
+# Формируем загрузчик
+# file_loader = FileSystemLoader('templates') # указываем из какого места загрузить шаблон
+# env = Environment(loader=file_loader)
+
+# tm = env.get_template(main.html) # указываем какой шаблон взять
+# msg = tm.render(users = persons)
+
+# Виды загрузчиков
+# FileSystemLoader - для загрузки шаблонов из файловой системы нашей программы
+# PackageLoader - для загрузки шаблонов из пакета
+# DictLoader - для загрузки шаблонов из словоря
+# FunctionLoader - для загрузки на основе функции
+# PrefixLoader - загрузчик, использующий словарь для построения подкаталогов
+# ChoiceLoader - загрузчик, содержащий список других загрузчиков (если один
+#                не срабатывает, выбирается следующий)
+# ModuleLoader - загрузчик для скомпилированных шаблонов
+
+# Пример - FunctionLoader - для загрузки на основе функции
+persons = [
+    {'name':'Alexsei', 'old':23, 'weight': 78.5},
+    {'name':'Dima', 'old':15, 'weight': 50.4},
+    {'name':'Misha', 'old':37, 'weight': 82.6},
+    {'name':'Timur', 'old':11, 'weight': 45.8},
+]
+
+def loadTpl(path):
+    if path == 'index':
+        return '''Имя {{u.name}}, возраст{{u.old}}'''
+    else:
+        return '''данные: {{u}}'''
+
+file_loader = FunctionLoader(loadTpl)
+env = Environment(loader=file_loader)
+
+tm = env.get_template('index')
+msg = tm.render(u = persons[0])
+print(msg)
+
